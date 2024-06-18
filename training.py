@@ -7,11 +7,12 @@ csv.field_size_limit(sys.maxsize)
 class Trainer():
   
   def __init__(self):
-    self.spam = 0
-    self.ham = 0
+    self.num_spam = 0
+    self.num_ham = 0
     self.unique_words = set()
     self.total_spam_words = 0
     self.total_ham_words = 0
+    self.num_emails = 0
     self.spam_words = {}
     self.ham_words = {}
   
@@ -65,28 +66,22 @@ class Trainer():
 
           is_new_email = first_val_is_integer and second_val_is_ham_or_spam
           if is_new_email:
+            self.num_emails += 1
             is_spam = row[1] == 'spam'
             currently_reading_spam = True if is_spam else False
 
             if is_spam:
-                self.spam += 1
+                self.num_spam += 1
             else:
-                self.ham += 1
+                self.num_ham += 1
 
             self.tally(currently_reading_spam, row[2:])
           else:
               self.tally(currently_reading_spam, row)
     
-     
-     
+
      
 
-trainer = Trainer()
-trainer.parse('spam_ham_dataset.csv')
-
-print(trainer.ham_words['subject'])
-print(trainer.spam_words['subject'])
-print(len(trainer.unique_words))
 
 
 
