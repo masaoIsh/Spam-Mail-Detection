@@ -18,10 +18,10 @@ class Trainer():
   
 
   def clean_message(self, message):
-    m = message.lower()
-    m = m.translate(str.maketrans('', '', string.punctuation))
-    m = m.translate(str.maketrans('', '', string.digits))
-    return m.split()
+    message = message.lower()
+    message = message.translate(str.maketrans('', '', string.punctuation))
+    message = message.translate(str.maketrans('', '', string.digits))
+    return message.split()
   
 
   def tally(self, is_spam, row):
@@ -42,45 +42,43 @@ class Trainer():
                 else:
                     self.ham_words[word] = 1
 
-  def parse(self, training_data):
-    with open(training_data, newline='') as csvfile:
+  def train(self):
+    with open("spam_ham_dataset.csv", newline='') as csvfile:
       reader = csv.reader(csvfile, delimiter=',', quotechar='|')
-      currently_reading_spam = None
+      is_spam = None
       for i, row in enumerate(reader):
-          if (i == 0):
-            continue
+        if (i == 0): #skip first row since it only contains headers
+          continue
 
-          first_val_is_integer = False
+        first_val_is_integer = False
+        second_val_is_ham_or_spam = False
 
-          try:
-            first_val_is_integer = int(row[0])
-            first_val_is_integer = True
-          except:
-            pass
-          second_val_is_ham_or_spam = False
-          try:
-            if row[1] == 'ham' or row[1] == 'spam':
-              second_val_is_ham_or_spam = True
-          except IndexError:
-            pass
+        try:
+          first_val_is_integer = int(row[0])
+          first_val_is_integer = True
+        except:
+          pass
+        try:
+          if row[1] == 'ham' or row[1] == 'spam':
+            second_val_is_ham_or_spam = True
+        except IndexError:
+          pass
 
-          is_new_email = first_val_is_integer and second_val_is_ham_or_spam
-          if is_new_email:
-            self.num_emails += 1
-            is_spam = row[1] == 'spam'
-            currently_reading_spam = True if is_spam else False
+        is_new_email = first_val_is_integer and second_val_is_ham_or_spam
+        if is_new_email:
+          self.num_emails += 1
+          is_spam = row[1] == 'spam'
 
-            if is_spam:
-                self.num_spam += 1
-            else:
-                self.num_ham += 1
-
-            self.tally(currently_reading_spam, row[2:])
+          if is_spam:
+            self.num_spam += 1
           else:
-              self.tally(currently_reading_spam, row)
+            self.num_ham += 1
+
+          self.tally(is_spam, row[2:])
+        else:
+           self.tally(is_spam, row)
     
 
-     
 
 
 
